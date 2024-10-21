@@ -3,6 +3,7 @@ package gameship;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +20,7 @@ public class GameShip extends JPanel implements ActionListener, KeyListener {
     private long lastEnemySpawnTime;
     private final Random random;
 
-    public GameShip() {
+    public GameShip() throws IOException {
         setFocusable(true);
         setBackground(Color.BLACK);
         setPreferredSize(new Dimension(800, 600));
@@ -38,7 +39,11 @@ public class GameShip extends JPanel implements ActionListener, KeyListener {
 
     @Override
     public void actionPerformed(ActionEvent event) {
-        updateGame();
+        try {
+            updateGame();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         repaint();
     }
 
@@ -46,26 +51,22 @@ public class GameShip extends JPanel implements ActionListener, KeyListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Рисование корабля
         ship.draw(g);
 
-        // Рисование пуль
         for (Bullet bullet : bullets) {
             bullet.draw(g);
         }
 
-        // Рисование врагов
         for (Enemy enemy : enemies) {
             enemy.draw(g);
         }
 
-        // Рисование счёта
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.PLAIN, 20));
         g.drawString("Счёт: " + score, 10, 20);
     }
 
-    private void updateGame() {
+    private void updateGame() throws IOException {
         if (moveLeft) {
             ship.moveLeft();
         }

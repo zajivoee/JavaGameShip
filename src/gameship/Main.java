@@ -1,10 +1,11 @@
 package gameship;
 
 import javax.swing.JFrame;
+import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Simple Game Ship");
+    public static void main(String[] args) throws IOException {
+        JFrame frame = new JFrame("StarWars");
         GameShip game = new GameShip();
         frame.add(game);
         frame.pack();
