@@ -42,6 +42,29 @@ public class GameShip extends JPanel implements ActionListener, KeyListener {
         repaint();
     }
 
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        // Рисование корабля
+        ship.draw(g);
+
+        // Рисование пуль
+        for (Bullet bullet : bullets) {
+            bullet.draw(g);
+        }
+
+        // Рисование врагов
+        for (Enemy enemy : enemies) {
+            enemy.draw(g);
+        }
+
+        // Рисование счёта
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.PLAIN, 20));
+        g.drawString("Счёт: " + score, 10, 20);
+    }
+
     private void updateGame() {
         if (moveLeft) {
             ship.moveLeft();

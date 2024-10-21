@@ -6,9 +6,9 @@ public class Ship {
     private int x;
     private final int y;
     private final int width = 50;
+    int height = 20;
     private final int speed = 5;
     private long lastShotTime;
-    private int cooldown = 400;
 
     public Ship(int x, int y) {
         this.x = x;
@@ -52,6 +52,11 @@ public class Ship {
     }
 
     public int getShootCooldown() {
-        return cooldown;
+        return 400;
+    }
+
+    public void draw(Graphics g) {
+        g.setColor(Color.BLUE);
+        g.fillRect(x, y, width, height);
     }
 }

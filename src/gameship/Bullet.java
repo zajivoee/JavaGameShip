@@ -25,4 +25,10 @@ public class Bullet {
         int width = 4;
         return new Rectangle(x, y, width, height);
     }
+
+    public void draw(Graphics g) {
+        g.setColor(Color.YELLOW);
+        int width = 4;
+        g.fillRect(x, y, width, height);
+    }
 }

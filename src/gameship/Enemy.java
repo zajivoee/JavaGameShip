@@ -29,4 +29,10 @@ public class Enemy {
         return new Rectangle(x, y, width, height);
     }
 
+    public void draw(Graphics g) {
+        g.setColor(Color.RED);
+        int width = 40;
+        int height = 20;
+        g.fillRect(x, y, width, height);
+    }
 }
