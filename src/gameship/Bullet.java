@@ -11,7 +11,6 @@ public class Bullet {
     private int y;
     private final int width;
     private final int height;
-    private final int speed = 7;
     private Image image;
 
     public Bullet(int x, int y) throws IOException {
@@ -28,11 +27,8 @@ public class Bullet {
     }
 
     public void update() {
+        int speed = 7;
         y -= speed;
-    }
-
-    public boolean checkPosition() {
-        return y < -height;
     }
 
     public Rectangle getBounds() {
@@ -44,5 +40,9 @@ public class Bullet {
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g2d.drawImage(image, x, y, null);
         g2d.dispose();
+    }
+
+    public boolean isOffScreen() {
+        return y < -height;
     }
 }

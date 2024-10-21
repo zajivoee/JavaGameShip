@@ -1,13 +1,14 @@
 package gameship;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 public class GameShip extends JPanel implements ActionListener, KeyListener {
 
@@ -16,17 +17,19 @@ public class GameShip extends JPanel implements ActionListener, KeyListener {
     private final List<Bullet> bullets;
     private final List<Enemy> enemies;
     private int score;
-    private boolean moveLeft, moveRight, spacePressed;
+    private boolean leftPressed, rightPressed, spacePressed;
     private long lastEnemySpawnTime;
     private final Random random;
+    private Image background;
 
     public GameShip() throws IOException {
         setFocusable(true);
-        setBackground(Color.BLACK);
         setPreferredSize(new Dimension(800, 600));
         addKeyListener(this);
+        
+        loadBackgroundImage();
 
-        ship = new Ship(375, 550);
+        ship = new Ship(375, 500);
         bullets = new ArrayList<>();
         enemies = new ArrayList<>();
         score = 0;
@@ -37,19 +40,24 @@ public class GameShip extends JPanel implements ActionListener, KeyListener {
         timer.start();
     }
 
-    @Override
-    public void actionPerformed(ActionEvent event) {
-        try {
-            updateGame();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        repaint();
+    private void loadBackgroundImage() throws IOException {
+        BufferedImage originalImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/background2.png")));
+        BufferedImage resizedImage = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = resizedImage.createGraphics();
+        g2d.drawImage(originalImage, 0, 0, 800, 600, null);
+        background = resizedImage;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        if (background != null) {
+            g.drawImage(background, 0, 0, null);
+        } else {
+            g.setColor(getBackground());
+            g.fillRect(0, 0, getWidth(), getHeight());
+        }
 
         ship.draw(g);
 
@@ -66,36 +74,47 @@ public class GameShip extends JPanel implements ActionListener, KeyListener {
         g.drawString("Счёт: " + score, 10, 20);
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        try {
+            updateGame();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        repaint();
+    }
+
     private void updateGame() throws IOException {
-        if (moveLeft) {
+        if (leftPressed) {
             ship.moveLeft();
         }
-        if (moveRight) {
+
+        if (rightPressed) {
             ship.moveRight();
         }
-        
+
         if (spacePressed) {
             long currentTime = System.currentTimeMillis();
             if (currentTime - ship.getLastShotTime() > ship.getShootCooldown()) {
-                bullets.add(new Bullet(ship.getX() + ship.getWidth() / 2 - 2, ship.getY()));
+                bullets.add(new Bullet(ship.getX() + ship.getWidth() / 2 - 5, ship.getY()));
                 ship.setLastShotTime(currentTime);
             }
         }
-        
+
         Iterator<Bullet> bulletIter = bullets.iterator();
         while (bulletIter.hasNext()) {
             Bullet bullet = bulletIter.next();
             bullet.update();
-            if (bullet.checkPosition()) {
+            if (bullet.isOffScreen()) {
                 bulletIter.remove();
             }
         }
 
         if (System.currentTimeMillis() - lastEnemySpawnTime > 1000) {
-            enemies.add(new Enemy(random.nextInt(760), -30));
+            enemies.add(new Enemy(random.nextInt(800 - 40), -40));
             lastEnemySpawnTime = System.currentTimeMillis();
         }
-        
+
         Iterator<Enemy> enemyIter = enemies.iterator();
         while (enemyIter.hasNext()) {
             Enemy enemy = enemyIter.next();
@@ -119,42 +138,42 @@ public class GameShip extends JPanel implements ActionListener, KeyListener {
                 }
             }
         }
-        
+
         for (Enemy enemy : enemies) {
             if (ship.getBounds().intersects(enemy.getBounds())) {
                 timer.stop();
-                JOptionPane.showMessageDialog(this, "Game over :(\nYour score: " + score);
+                JOptionPane.showMessageDialog(this, "Game over :(\nYour Score: " + score);
                 System.exit(0);
             }
         }
     }
 
     @Override
-    public void keyPressed(KeyEvent event) {
-        int key = event.getKeyCode();
+    public void keyPressed(KeyEvent e) {
+        int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A) {
-            moveLeft = true;
+            leftPressed = true;
         }
-        
+
         if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D) {
-            moveRight = true;
+            rightPressed = true;
         }
-        
+
         if (key == KeyEvent.VK_SPACE) {
             spacePressed = true;
         }
     }
 
     @Override
-    public void keyReleased(KeyEvent event) {
-        int key = event.getKeyCode();
+    public void keyReleased(KeyEvent e) {
+        int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A) {
-            moveLeft = false;
+            leftPressed = false;
         }
         if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D) {
-            moveRight = false;
+            rightPressed = false;
         }
         if (key == KeyEvent.VK_SPACE) {
             spacePressed = false;
@@ -162,5 +181,5 @@ public class GameShip extends JPanel implements ActionListener, KeyListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent event) {}
+    public void keyTyped(KeyEvent e) {}
 }
